@@ -219,6 +219,12 @@ const createScene = () => {
     wing02.position.y = 3;
     wing02.position.x = -5;
 
+    const CoT = new BABYLON.TransformNode("root"); 
+    shipPit.parent = CoT;
+    shipBody.parent = CoT;
+    wing01.parent = CoT;
+    wing02.parent = CoT;
+
     camera.lockedTarget = camTarget;
 
     var animationShip = new BABYLON.Animation("myAnimation", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
@@ -248,23 +254,9 @@ var keys = [];
 
 animationShip.setKeys(keys);
 
-shipPit.animations = [];
-shipPit.animations.push(animationShip);
-
-shipBody.animations = [];
-shipBody.animations.push(animationShip);
-
-wing01.animations=[];
-wing01.animations.push(animationShip);
-
-wing02.animations=[];
-wing02.animations.push(animationShip);
-
-scene.beginAnimation(shipPit, 0, 100, true);
-scene.beginAnimation(shipBody, 0, 100, true);
-  
-scene.beginAnimation(wing01, 0, 100, true);
-scene.beginAnimation(wing02, 0, 100, true);
+CoT.animations = [];
+CoT.animations.push(animationShip);
+scene.beginAnimation(CoT, 0, 100, true);
 
 scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
 camera.applyGravity = true;

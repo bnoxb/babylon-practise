@@ -1,0 +1,23 @@
+{
+  "name": "babylon-practise",
+  "version": "1.0.0",
+  "description": "for babylon.js practise",
+  "main": "main.js",
+  "dependencies": {
+    "earcut": "^2.1.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bnoxb/babylon-practise.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bnoxb/babylon-practise/issues"
+  },
+  "homepage": "https://github.com/bnoxb/babylon-practise#readme"
+}

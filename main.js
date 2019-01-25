@@ -5,7 +5,7 @@ const engine = new BABYLON.Engine(canvas, true);
 const createScene = () => {
     // create the scene space
     const scene = new BABYLON.Scene(engine);
-
+    scene.clearColor = BABYLON.Color3.Blue();
     //Arc Camera to just uncomment so you can easily rotate camera to edit
     // Add a camera to the scene and attach it to the canvas
     const camera = new BABYLON.ArcRotateCamera("Camera", -.4 *Math.PI *2 , Math.PI/3, 100, new BABYLON.Vector3(0, 0, 0), scene);
@@ -16,10 +16,10 @@ const createScene = () => {
     // camera.radius = 60;
     // camera.heightOffset = 30;
     // camera.rotationOffset = 30;
-    scene.ambientColor = new BABYLON.Color3(.75, .75, .75);
+    scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
     // Add lights to the scene
-    const light1 = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(30, 30, 1), scene);
+    const light1 = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(15, 100, -30), scene);
     light1.diffuse = new BABYLON.Color3(0, 0, 1);
 	light1.specular = new BABYLON.Color3(0, 0, 1);
 	light1.groundColor = new BABYLON.Color3(0, 1, 0);
@@ -114,6 +114,7 @@ const createScene = () => {
     /*******************************End Local Axes****************************/
 
     const bodyMaterial = new BABYLON.StandardMaterial("bodyMaterial", scene);
+    //bodyMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
     bodyMaterial.ambientColor = new BABYLON.Color3(1, .25, .25);
     bodyMaterial.backFaceCulling = false;
 
@@ -121,6 +122,7 @@ const createScene = () => {
     pitMaterial.ambientColor = new BABYLON.Color3(.25, .25, 1);
     //pitMaterial.emissiveColor = new BABYLON.Color3(0, 0, 1);
     //bodyMaterial.backFaceCulling = false;
+    pitMaterial.alpha = .5;
 
     const ghostMat = new BABYLON.StandardMaterial("ghostMat", scene);
     ghostMat.ambientColor = new BABYLON.Color4(0, 0, 0,);
@@ -159,9 +161,15 @@ const createScene = () => {
         new BABYLON.Color4(0, 0, 1, .5)
     ];
     const bodyColors = [
-        new BABYLON.Color4(1, 0.25, 0.25, 1),
-        new BABYLON.Color4(1, 0.25, 0.25, 1),
-        new BABYLON.Color4(1, 0.25, 0.25, 1),
+        new BABYLON.Color4(.8, .8, 0.25, 1),
+        new BABYLON.Color4(.5, .5, 180/255, 1),
+        new BABYLON.Color4(.8, 0.8, 0.25, 1),
+    ];
+
+    const bodyColors2 = [
+        new BABYLON.Color4(.25, 1, 0.25, 1),
+        new BABYLON.Color4(.1, 1, 0, 1),
+        new BABYLON.Color4(0, 1, 0.25, 1),
     ];
 
     var yaw = Math.random() * 2* Math.PI;
@@ -190,9 +198,9 @@ const createScene = () => {
     // the lightbulb ******************************************************************************************************
     const lightBulb = BABYLON.MeshBuilder.CreateSphere("lightBulb", {diameter: 2}, scene);
     lightBulb.material = lightMat;
-    lightBulb.position.y = 30;
-    lightBulb.position.x = 30;
-    lightBulb.position.z = 1;
+    lightBulb.position.y = 100;
+    lightBulb.position.x = 15;
+    lightBulb.position.z = -30;
 
     // the ship body **************************************************************************************************
     const shipBody = BABYLON.MeshBuilder.ExtrudePolygon("shipBody", {shape: bodyShape, depth: 20, faceColors: bodyColors}, scene);
@@ -215,18 +223,24 @@ const createScene = () => {
     const wing02 = BABYLON.MeshBuilder.ExtrudePolygon("wing02", {shape: wingShape, depth: 2, faceColors: bodyColors}, scene);
     wing02.material = bodyMaterial;
     wing02.rotate(BABYLON.Axis.X, (.5 * Math.PI *2), BABYLON.Space.LOCAL);
-   
     wing02.position.y = 3;
     wing02.position.x = -5;
+    // The Weapon *****************************************************************************************
+    const weaponBase = BABYLON.MeshBuilder.CreateBox("weaponBase", {height: 5, width: 5, depth: 5}, scene);
+    weaponBase.material = lightMat;
+    weaponBase.position.y = 17;
+    weaponBase.position.x = 15;
+    weaponBase.position.z = 10;
 
-    const CoT = new BABYLON.TransformNode("root"); 
-    shipPit.parent = CoT;
-    shipBody.parent = CoT;
-    wing01.parent = CoT;
-    wing02.parent = CoT;
+    // The Transform Node
+    const ship = new BABYLON.TransformNode("root"); 
+    shipPit.parent = ship;
+    shipBody.parent = ship;
+    wing01.parent = ship;
+    wing02.parent = ship;
 
     camera.lockedTarget = camTarget;
-
+// ANIMATION **********************************************************************************************
     var animationShip = new BABYLON.Animation("myAnimation", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
 
     // An array with all animation keys
@@ -256,10 +270,82 @@ animationShip.setKeys(keys);
 
 CoT.animations = [];
 CoT.animations.push(animationShip);
-scene.beginAnimation(CoT, 0, 100, true);
+//scene.beginAnimation(CoT, 0, 100, true); //  animation start
 
 scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
 camera.applyGravity = true;
+
+scene.collisionsEnabled = true;
+camera.checkCollisions = true;
+ground.checkCollisions = true;
+shipBody.checkCollisions = true;
+shipPit.checkCollisions = true;
+wing01.checkCollisions = true;
+wing02.checkCollisions = true;
+
+// Shadowsss******************************************************************
+
+const shadowGenerator = new BABYLON.ShadowGenerator(1000, light1);
+shadowGenerator.getShadowMap().renderList.push(shipBody);
+shadowGenerator.getShadowMap().renderList.push(shipPit);
+shadowGenerator.getShadowMap().renderList.push(wing01);
+shadowGenerator.getShadowMap().renderList.push(wing02);
+shadowGenerator.useExponentialShadowMap = true;
+ground.receiveShadows = true;
+wallLeft.receiveShadows = true;
+
+
+
+ // GUI ****************************************************************************
+// gui initializer
+const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+// green button
+const buttonGreen = BABYLON.GUI.Button.CreateSimpleButton("buttonGreen", "Green");
+buttonGreen.width = "150px";
+buttonGreen.height = "40px";
+buttonGreen.color = "white";
+buttonGreen.background = "green";
+buttonGreen.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+buttonGreen.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+buttonGreen.left = "0px";
+buttonGreen.top = "60px";
+// event listener for green
+buttonGreen.onPointerClickObservable.add(()=>{
+    shipBody.material.ambientColor = new BABYLON.Color3(0, 1, 0);
+});
+//button red
+const buttonRed = BABYLON.GUI.Button.CreateSimpleButton("buttonRed", "Red");
+buttonRed.width = "150px";
+buttonRed.height = "40px";
+buttonRed.color = "white";
+buttonRed.background = "red";
+buttonRed.left = "0px";
+buttonRed.top = "0px";
+buttonRed.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+buttonRed.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+// event listener for red
+buttonRed.onPointerClickObservable.add(()=>{
+    shipBody.material.ambientColor = new BABYLON.Color3(1, 0, 0);
+});
+// weapon button
+const buttonWeapon01 = BABYLON.GUI.Button.CreateSimpleButton("buttonWeapon", "Buy Weapon");
+buttonWeapon01.width = "150px";
+buttonWeapon01.height = "40px";
+buttonWeapon01.color = "white";
+buttonWeapon01.background = "black";
+buttonWeapon01.left = "0px";
+buttonWeapon01.top = "120px";
+buttonWeapon01.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+buttonWeapon01.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+// event listener for weapon button
+buttonWeapon01.onPointerClickObservable.add(()=>{
+    shipBody.material.ambientColor = new BABYLON.Color3(0,0,1);
+})
+// make the buttons
+advancedTexture.addControl(buttonWeapon01);
+advancedTexture.addControl(buttonGreen);
+advancedTexture.addControl(buttonRed);
+
 
     return scene;
 };

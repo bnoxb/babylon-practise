@@ -4,6 +4,8 @@
   "description": "for babylon.js practise",
   "main": "main.js",
   "dependencies": {
+    "babylonjs": "^3.3.0",
+    "babylonjs-gui": "^3.3.0",
     "earcut": "^2.1.4"
   },
   "devDependencies": {},

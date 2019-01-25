@@ -17,7 +17,8 @@ const createScene = () => {
     // camera.heightOffset = 30;
     // camera.rotationOffset = 30;
     scene.ambientColor = new BABYLON.Color3(1, 1, 1);
-
+    // Assets Manager ***********************************************************************************
+    const assetsManager = new BABYLON.AssetsManager(scene);
     // Add lights to the scene
     const light1 = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(15, 100, -30), scene);
     light1.diffuse = new BABYLON.Color3(0, 0, 1);
@@ -126,6 +127,11 @@ const createScene = () => {
 
     const ghostMat = new BABYLON.StandardMaterial("ghostMat", scene);
     ghostMat.ambientColor = new BABYLON.Color4(0, 0, 0,);
+    ghostMat.alpha = 0;
+
+    const weaponMat = new BABYLON.StandardMaterial("weaponMat", scene);
+    weaponMat.ambientColor = new BABYLON.Color4(0, 0, 0,);
+    //weaponMat.alpha = 0;
 
     const lightMat = new BABYLON.StandardMaterial("lightMat", scene);
     lightMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
@@ -225,12 +231,18 @@ const createScene = () => {
     wing02.rotate(BABYLON.Axis.X, (.5 * Math.PI *2), BABYLON.Space.LOCAL);
     wing02.position.y = 3;
     wing02.position.x = -5;
+
     // The Weapon *****************************************************************************************
-    const weaponBase = BABYLON.MeshBuilder.CreateBox("weaponBase", {height: 5, width: 5, depth: 5}, scene);
-    weaponBase.material = lightMat;
-    weaponBase.position.y = 17;
-    weaponBase.position.x = 15;
-    weaponBase.position.z = 10;
+   let weaponBase; // weaponBase container
+    const makeWeaponBase = ()=>{
+        weaponBase = BABYLON.MeshBuilder.CreateBox("weaponBase", {height: 5, width: 5, depth: 5}, scene);
+        weaponBase.material = weaponMat;
+        weaponBase.position.y = 17;
+        weaponBase.position.x = 15;
+        weaponBase.position.z = 10;
+    }
+    
+    
 
     // The Transform Node
     const ship = new BABYLON.TransformNode("root"); 
@@ -238,6 +250,7 @@ const createScene = () => {
     shipBody.parent = ship;
     wing01.parent = ship;
     wing02.parent = ship;
+    
 
     camera.lockedTarget = camTarget;
 // ANIMATION **********************************************************************************************
@@ -268,9 +281,9 @@ var keys = [];
 
 animationShip.setKeys(keys);
 
-CoT.animations = [];
-CoT.animations.push(animationShip);
-//scene.beginAnimation(CoT, 0, 100, true); //  animation start
+ship.animations = [];
+ship.animations.push(animationShip);
+scene.beginAnimation(ship, 0, 100, true); //  animation start
 
 scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
 camera.applyGravity = true;
@@ -339,10 +352,33 @@ buttonWeapon01.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LE
 buttonWeapon01.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
 // event listener for weapon button
 buttonWeapon01.onPointerClickObservable.add(()=>{
-    shipBody.material.ambientColor = new BABYLON.Color3(0,0,1);
+    makeWeaponBase();
+    // weapon link to ship
+    weaponBase.parent = ship;  
+})
+
+// weapon removal button
+const buttonWeapon02 = BABYLON.GUI.Button.CreateSimpleButton("buttonWeapon", "Sell Weapon");
+buttonWeapon02.width = "150px";
+buttonWeapon02.height = "40px";
+buttonWeapon02.color = "white";
+buttonWeapon02.background = "black";
+buttonWeapon02.left = "0px";
+buttonWeapon02.top = "180px";
+buttonWeapon02.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+buttonWeapon02.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+// event listener for weapon button
+buttonWeapon02.onPointerClickObservable.add(()=>{
+    if(weaponBase === undefined) {
+        console.log('There is no weapon to sell');
+    }
+    else{
+        weaponBase.dispose();
+    }
 })
 // make the buttons
 advancedTexture.addControl(buttonWeapon01);
+advancedTexture.addControl(buttonWeapon02);
 advancedTexture.addControl(buttonGreen);
 advancedTexture.addControl(buttonRed);
 

@@ -11,7 +11,8 @@ const createScene = () => {
     const camera = new BABYLON.ArcRotateCamera("Camera", -.4 *Math.PI *2 , Math.PI/3, 100, new BABYLON.Vector3(0, 0, 0), scene);
     camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
     // Add this camera to fix the position
-    // const camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 10, -10), scene);    camera.setTarget(BABYLON.Vector3.Zero());
+    // const camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 10, -10), scene);    
+    // camera.setTarget(BABYLON.Vector3.Zero());
     camera.attachControl(canvas, true);
     // camera.radius = 60;
     // camera.heightOffset = 30;
@@ -115,13 +116,11 @@ const createScene = () => {
     /*******************************End Local Axes****************************/
 
     const bodyMaterial = new BABYLON.StandardMaterial("bodyMaterial", scene);
-    //bodyMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
     bodyMaterial.ambientColor = new BABYLON.Color3(1, .25, .25);
     bodyMaterial.backFaceCulling = false;
 
     const pitMaterial = new BABYLON.StandardMaterial("pitMaterial", scene);
     pitMaterial.ambientColor = new BABYLON.Color3(.25, .25, 1);
-    //pitMaterial.emissiveColor = new BABYLON.Color3(0, 0, 1);
     //bodyMaterial.backFaceCulling = false;
     pitMaterial.alpha = .5;
 
